@@ -51,7 +51,7 @@ export async function getFeeStructures() {
           term: fee.termId,
           amount: fee.amount,
           due: fee.dueAt ? new Date(fee.dueAt).toISOString().slice(0, 10) : "Not set",
-          voteHeads: fee.voteHeads.map((head) => head.name).join(", ") || "None"
+          voteHeads: fee.voteHeads.map((head: any) => head.name).join(", ") || "None"
         }))
       : fallbackFeeStructures;
   }, fallbackFeeStructures);
@@ -118,4 +118,74 @@ export async function getReconciliationRows() {
 
 export async function getIntegrations() {
   return fallbackIntegrations;
+}
+
+export async function getFinanceRecordById(id: string) {
+  return withDb(async () => {
+    // Try finding by Payment
+    try {
+      const payment = (await Payment.findById(id).lean()) as any;
+      if (payment) {
+        const student = (await Student.findById(payment.studentId).lean()) as any;
+        const fee = payment.feeId ? (await Fee.findById(payment.feeId).lean()) as any : null;
+        return {
+          type: "payment",
+          id: String(payment._id),
+          studentName: student ? `${student.firstName} ${student.lastName}` : "Unknown Student",
+          studentAdmission: student?.admissionNumber ?? "Unknown",
+          grade: student ? `${student.grade} ${student.stream}` : "Unknown Grade",
+          amount: payment.amount,
+          method: payment.method,
+          reference: payment.reference,
+          paidAt: new Date(payment.paidAt).toLocaleDateString(),
+          feeStructureName: fee ? fee.name : "General Fee / Unallocated",
+          status: payment.feeId ? "Allocated" : "Pending Allocation"
+        };
+      }
+    } catch (err) {}
+
+    // Try finding by Fee Structure
+    try {
+      const fee = (await Fee.findById(id).lean()) as any;
+      if (fee) {
+        return {
+          type: "fee",
+          id: String(fee._id),
+          name: fee.name,
+          grade: fee.grade,
+          term: fee.termId,
+          amount: fee.amount,
+          due: fee.dueAt ? new Date(fee.dueAt).toLocaleDateString() : "Not set",
+          voteHeads: fee.voteHeads || [],
+          createdAt: fee.createdAt ? new Date(fee.createdAt).toLocaleDateString() : "Not set"
+        };
+      }
+    } catch (err) {}
+
+    // Try finding by Student (for Arrears details)
+    try {
+      const student = (await Student.findById(id).lean()) as any;
+      if (student) {
+        const studentPayments = (await Payment.find({ studentId: id }).sort({ paidAt: -1 }).lean()) as any[];
+        return {
+          type: "arrears",
+          id: String(student._id),
+          studentName: `${student.firstName} ${student.lastName}`,
+          studentAdmission: student.admissionNumber,
+          grade: `${student.grade} ${student.stream}`,
+          balance: student.feeBalance,
+          parent: student.parentIds.join(", ") || "Not linked",
+          payments: studentPayments.map((p) => ({
+            id: String(p._id),
+            amount: p.amount,
+            method: p.method,
+            reference: p.reference,
+            paidAt: new Date(p.paidAt).toLocaleDateString()
+          }))
+        };
+      }
+    } catch (err) {}
+
+    return null;
+  }, null);
 }

@@ -4,6 +4,9 @@ import { Student } from "@/models/student";
 import { CbcAssessment } from "@/models/cbc-assessment";
 import { User } from "@/models/user";
 import { Teacher } from "@/models/teacher";
+import { SchoolClass } from "@/models/class";
+import type { AdmitStudentDto } from "@/dtos";
+import { createStudent } from "@/services";
 
 export type StudentPerformance = {
   meanScore: number;
@@ -42,6 +45,7 @@ export type StudentDetail = {
   assessments: Array<{
     subject: string;
     competencyScore: number;
+
     projectScore: number;
     practicalScore: number;
     date: Date;
@@ -195,12 +199,10 @@ export async function fetchStudentDetailsAction(studentId: string) {
 
     // Get class teacher for this grade/stream
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const schoolClass = (await import("@/models/class")).then((m) =>
-      m.SchoolClass.findOne({
-        grade: student.grade,
-        stream: student.stream
-      }).lean()
-    ) as any;
+    const schoolClass = (await SchoolClass.findOne({
+      grade: student.grade,
+      stream: student.stream
+    }).lean()) as any;
 
     let classTeacher = null;
     if (schoolClass?.classTeacherId) {
@@ -271,5 +273,18 @@ export async function updateStudentAction(
   } catch (error) {
     console.error("Error updating student:", error);
     return { success: false, error: "Failed to update student" };
+  }
+}
+
+/**
+ * Admit a new student
+ */
+export async function admitStudentAction(input: AdmitStudentDto) {
+  try {
+    const student = await createStudent(input);
+    return { success: true, data: student };
+  } catch (error: any) {
+    console.error("Error admitting student:", error);
+    return { success: false, error: error.message || "Failed to admit student" };
   }
 }

@@ -22,3 +22,26 @@ export function learnerRisk(score: number, attendance: number) {
   }
   return "Stable";
 }
+
+export function getStudentPerformanceColor(score: number): "green" | "yellow" | "orange" | "red" {
+  if (score >= 80) return "green";
+  if (score >= 65) return "yellow";
+  if (score >= 50) return "orange";
+  return "red";
+}
+
+export function getExamPerformanceColor(score: number): "green" | "yellow" | "orange" | "red" | "purple" {
+  if (score >= 85) return "green";
+  if (score >= 75) return "yellow";
+  if (score >= 65) return "orange";
+  if (score >= 55) return "red";
+  return "purple";
+}
+
+export function getPerformanceColor(score: number): "green" | "yellow" | "orange" | "red" {
+  if (score >= 80) return "green";
+  if (score >= 65) return "yellow";
+  if (score >= 50) return "orange";
+  return "red";
+}
+

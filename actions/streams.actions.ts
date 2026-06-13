@@ -50,15 +50,7 @@ function gradeFromScore(score: number): "EE" | "ME" | "AE" | "BE" {
   return "BE";
 }
 
-/**
- * Get performance color based on score
- */
-function getPerformanceColor(score: number): "green" | "yellow" | "orange" | "red" {
-  if (score >= 80) return "green";
-  if (score >= 65) return "yellow";
-  if (score >= 50) return "orange";
-  return "red";
-}
+
 
 /**
  * Fetch all streams with student counts and performance

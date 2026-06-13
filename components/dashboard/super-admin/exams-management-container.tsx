@@ -159,7 +159,7 @@ export function ExamsManagementContainer() {
   const handleStudentClick = useCallback(async (studentId: string) => {
     try {
       const result = await fetchStudentExamsAction(studentId);
-      if (result.success) {
+      if (result.success && result.data) {
         setSelectedStudentExams({
           studentId: studentId,
           studentName: result.data[0]?.studentName || "Unknown",

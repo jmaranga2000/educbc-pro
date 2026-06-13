@@ -21,13 +21,29 @@ export type StudentDto = {
   id: string;
   admissionNumber: string;
   firstName: string;
+  middleName?: string;
   lastName: string;
   fullName: string;
+  age: number;
   grade: string;
   stream: string;
   parentIds: string[];
   feeBalance: number;
   status: EntityStatus;
+  homePlace?: string;
+};
+
+export type AdmitStudentDto = {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  age: number;
+  grade: string;
+  stream: string;
+  healthRecords?: string;
+  parentName: string;
+  parentPhone: string;
+  homePlace?: string;
 };
 
 export type CreateStudentDto = {

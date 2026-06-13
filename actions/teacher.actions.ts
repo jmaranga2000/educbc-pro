@@ -47,10 +47,10 @@ export async function fetchEligibleUsersAction(searchQuery: string = "") {
       ];
     }
 
-    const users = await User.find(userQuery).select("_id name email phone role").lean();
+    const users = (await User.find(userQuery).select("_id name email phone role").lean()) as any[];
 
     // Filter out users who already have a teacher record
-    const teacherUserIds = await Teacher.find({}).select("userId").lean();
+    const teacherUserIds = (await Teacher.find({}).select("userId").lean()) as any[];
     const existingTeacherIds = new Set(teacherUserIds.map((t) => t.userId));
 
     const eligibleUsers = users.filter((user) => !existingTeacherIds.has(user._id.toString()));
@@ -137,11 +137,11 @@ export async function fetchAllTeachersAction(searchQuery: string = "", filterLev
       query.level = filterLevel;
     }
 
-    const teachers = await Teacher.find(query).lean();
+    const teachers = (await Teacher.find(query).lean()) as any[];
 
     // Fetch user details for each teacher
     const teacherIds = teachers.map((t) => t.userId);
-    const users = await User.find({ _id: { $in: teacherIds } }).lean();
+    const users = (await User.find({ _id: { $in: teacherIds } }).lean()) as any[];
     const userMap = Object.fromEntries(users.map((u) => [u._id.toString(), u]));
 
     // Apply search filter
@@ -169,7 +169,7 @@ export async function fetchAllTeachersAction(searchQuery: string = "", filterLev
           t.name.toLowerCase().includes(query) ||
           t.email.toLowerCase().includes(query) ||
           t.employeeNumber.toLowerCase().includes(query) ||
-          t.subjects.some((s) => s.toLowerCase().includes(query))
+          t.subjects.some((s: any) => s.toLowerCase().includes(query))
       );
     }
 
@@ -185,12 +185,12 @@ export async function fetchAllTeachersAction(searchQuery: string = "", filterLev
  */
 export async function fetchTeacherDetailsAction(teacherId: string) {
   try {
-    const teacher = await Teacher.findById(teacherId).lean();
+    const teacher = (await Teacher.findById(teacherId).lean()) as any;
     if (!teacher) {
       return { success: false, error: "Teacher not found" };
     }
 
-    const user = await User.findById(teacher.userId).lean();
+    const user = (await User.findById(teacher.userId).lean()) as any;
     if (!user) {
       return { success: false, error: "User not found" };
     }

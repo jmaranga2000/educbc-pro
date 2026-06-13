@@ -6,6 +6,7 @@ import { Teacher } from "@/models/teacher";
 import { Subject } from "@/models/subject";
 import { User } from "@/models/user";
 import { Stream } from "@/models/stream";
+import { getExamPerformanceColor } from "@/lib/cbc";
 
 export type ExamPerformance = {
   meanScore: number;
@@ -67,17 +68,6 @@ function getGradeFromScore(percentage: number): "A" | "B" | "C" | "D" | "F" {
   if (percentage >= 60) return "C";
   if (percentage >= 50) return "D";
   return "F";
-}
-
-/**
- * Convert score to performance color
- */
-function getExamPerformanceColor(score: number): "green" | "yellow" | "orange" | "red" | "purple" {
-  if (score >= 85) return "green";
-  if (score >= 75) return "yellow";
-  if (score >= 65) return "orange";
-  if (score >= 55) return "red";
-  return "purple";
 }
 
 /**
